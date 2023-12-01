@@ -7,3 +7,5 @@ export async function healthGet(req: Request, res: Response) {
   
     return res.status(httpStatus.OK).send(result);
   }
+
+  

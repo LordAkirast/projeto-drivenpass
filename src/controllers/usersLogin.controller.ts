@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import { userService } from '@/services/users-service';
+import { userService } from '../services/users-service';
 
 export async function usersLogin(req: Request, res: Response) {
   const { email, password } = req.body;
@@ -12,6 +12,8 @@ export async function usersLogin(req: Request, res: Response) {
       email: user.email,
     });
   } catch (error) {
+
+    console.log('erro:',error)
   
     if (error.code === "emailExisting_error") {
       return res.status(httpStatus.CONFLICT).json({ error: error.message });

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import { userService } from '@/services/users-service';
+import { userService } from '../services/users-service';
 
 export async function usersCreatePost(req: Request, res: Response) {
   const { email, password } = req.body;

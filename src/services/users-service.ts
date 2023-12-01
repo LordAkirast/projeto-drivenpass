@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
-import { userRepository } from '@/repository/users-repository';
+import { userRepository } from '../repository/users-repository';
+import { string } from 'joi';
 
 export async function createUser({ email, password }: CreateUserParams): Promise<User> {
 
@@ -16,17 +17,29 @@ export async function createUser({ email, password }: CreateUserParams): Promise
 }
 
 export async function loginUser({ email, password }: CreateUserParams): Promise<User> {
+  console.log('entrou no login userrrr');
 
-  console.log('entrou no login userrrr')
-  await validateUserExists(email);
+  const user = await validateUserExists(email);
+  console.log('passou do validateUserExists');
 
-  console.log('passou do validateUniqueEmailOrFail')
-  const hashedPassword = await bcrypt.hash(password, 12);
-  return userRepository.create({
-    email,
-    password: hashedPassword,
-  });
+ 
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  
+  if (!isPasswordValid) {
+    throw new Error("Senha inválida");
+  }
+
+  const expirationTimestamp = new Date();
+  expirationTimestamp.setMinutes(expirationTimestamp.getMinutes() + 15);
+
+  const token = 'a'
+
+  await userRepository.createSession(user.id, token, expirationTimestamp);
+
+  return user;
 }
+
+
 
 
 async function validateUniqueEmailOrFail(email: string) {
@@ -44,7 +57,7 @@ async function validateUniqueEmailOrFail(email: string) {
 }
 
 async function validateUserExists(email: string) {
-  const userWithSameEmail = await userRepository.findByEmail(email);
+  const userWithSameEmail = await userRepository.emailExists(email);
 
   console.log('entrou no create validateUserExists')
 
